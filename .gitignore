@@ -1,0 +1,5 @@
+.agents/
+.idea/
+scratch/
+/*.py
+/*.json
