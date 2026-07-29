@@ -194,6 +194,7 @@
 >   * **Critic 如何更新？**：它是常规的有监督均方误差训练。每次迭代中，Actor 生成回答 $s_i$，已训练好的奖励模型打出最终分数 $R(s_i)$（作为 Critic 的 Ground Truth）。Critic 通过最小化 MSE Loss 进行梯度更新：
 >     $$\text{Loss}_{\text{Critic}}(\phi) = \frac{1}{m} \sum_{i=1}^m \left( V_\phi(x_i) - R(s_i) \right)^2$$
 >   * **如何控制方差？**：在更新 Actor 时，PPO 用优势值 $A(s_i) = R(s_i) - V_\phi(x_i)$（实际表现相对预估水平的相对优劣）来代替绝对奖励。
+>     * *注：此处的数学表达式为全句维度的概念级简化，将原本需要在各个 Token（时间步）上进行的时序递推，简化为了“整句奖励值减去初始 Critic 估值”的形式。在真实的自回归长序列训练中，这种全局均摊的做法会导致严重的信用分配和时间因果性缺失。真实的 Token 级优势值计算采用 GAE（广义优势估计）算法。关于大模型 GAE 对每个 Token 局部梯度的精准控制机制、以及 Critic 价值网络在此上面临的收敛性痛点，请跳转参考 [第12讲: 页面40-42 的详细注释](file:///wsl.localhost/Ubuntu/home/blybq/code-project/cs224n/markdown/slides/lecture12-reasoning-part1.md#L341-L368)。*
 >     * 若 $A(s_i) > 0$（表现好于预期），正向微调概率；
 >     * 若 $A(s_i) < 0$（表现差于预期），反向压低概率；
 >     * 若 $A(s_i) \approx 0$（符合预期），参数保持稳定。由此将梯度更新的方差降到最低。
